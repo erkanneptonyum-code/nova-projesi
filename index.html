@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#090914" />
+    <meta
+      name="description"
+      content="Neon Fauna ile oyun görsellerindeki hayvanları yapay zekâ ile keşfet."
+    />
+    <title>Neon Fauna — AI Arcade</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+    <script
+      src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"
+      defer
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"
+      defer
+    ></script>
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <div class="backdrop-grid" aria-hidden="true"></div>
+    <div class="orb orb-one" aria-hidden="true"></div>
+    <div class="orb orb-two" aria-hidden="true"></div>
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="Neon Fauna ana sayfa"
+        ><span class="brand-mark"><span></span><span></span><span></span></span
+        ><span>NEON<span class="brand-accent">FAUNA</span></span></a
+      >
+      <div class="top-status">
+        <span class="status-dot"></span
+        ><span id="modelStatus">MODEL BAĞLANIYOR</span>
+      </div>
+      <a class="top-link" href="#how-it-works"
+        >NASIL ÇALIŞIR <span aria-hidden="true">↘</span></a
+      >
+    </header>
+
+    <main>
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <div class="eyebrow">
+            <span class="eyebrow-line"></span> ARCADE LAB / 001
+          </div>
+          <h1 id="hero-title">
+            Pikselin<br />ardındaki <span>canlıyı</span><br />bul.
+          </h1>
+          <p class="hero-description">
+            Oyun görselini yükle. Kendi eğittiğimiz yapay zekâ hangi hayvan
+            olduğunu keşfetsin.
+          </p>
+          <div class="hero-meta">
+            <span class="meta-icon">✳</span
+            ><span>GÖRSEL ANALİZİ, YENİDEN OYUNLAŞTIRILDI</span>
+          </div>
+        </div>
+
+        <div class="scanner-card" aria-label="Yapay zekâ görsel tarayıcı">
+          <div class="scanner-top">
+            <span>NEURAL SCANNER</span
+            ><span class="scanner-version">NF—01</span>
+          </div>
+          <div class="scanner-visual" aria-hidden="true">
+            <div class="scan-corner corner-tl"></div>
+            <div class="scan-corner corner-tr"></div>
+            <div class="scan-corner corner-bl"></div>
+            <div class="scan-corner corner-br"></div>
+            <div class="scan-ring ring-outer"></div>
+            <div class="scan-ring ring-inner"></div>
+            <div class="scan-cross">✳</div>
+            <div class="scan-label label-left">VISION<br />ACTIVE</div>
+            <div class="scan-label label-right">AI<br />ONLINE</div>
+            <div class="scan-sweep"></div>
+          </div>
+          <div class="scanner-bottom">
+            <span>GÖRSELİ BEKLİYOR</span
+            ><span class="live-indicator"><i></i> LIVE</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="workspace" aria-label="Görsel yükleme ve analiz alanı">
+        <div class="workspace-heading">
+          <div>
+            <span class="section-index">01 / INPUT</span>
+            <h2>Bir görsel seç.</h2>
+          </div>
+          <span class="file-hint"
+            >JPG, PNG, WEBP, GIF <b>·</b> MAKS. 10 MB</span
+          >
+        </div>
+        <div class="upload-layout">
+          <label
+            class="dropzone"
+            id="dropzone"
+            for="imageInput"
+            tabindex="0"
+            aria-label="Görsel seçmek için tıklayın veya dosyayı buraya sürükleyin"
+          >
+            <input
+              id="imageInput"
+              type="file"
+              accept="image/png,image/jpeg,image/webp,image/gif"
+            />
+            <div class="upload-content" id="uploadContent">
+              <div class="upload-icon"><span>＋</span></div>
+              <strong>Görselini buraya bırak</strong>
+              <span class="upload-sub"
+                >ya da <span class="browse-link">dosyalara göz at</span></span
+              >
+            </div>
+            <div class="preview-wrap" id="previewWrap" hidden>
+              <img
+                id="imagePreview"
+                alt="Analiz edilecek görsel önizlemesi"
+              /><span class="preview-tag">INPUT PREVIEW</span
+              ><button
+                class="remove-image"
+                id="removeImage"
+                type="button"
+                aria-label="Görseli kaldır"
+              >
+                ×
+              </button>
+            </div>
+            <div class="dropzone-bottom">
+              <span
+                ><i class="tiny-lock">◇</i> GÖRSELLERİN CİHAZINDA İŞLENİR</span
+              ><span>01—01</span>
+            </div>
+          </label>
+          <aside class="action-panel">
+            <div class="panel-label">02 / ANALYZE</div>
+            <p>Yapay zekânı<br />harekete geçir.</p>
+            <div class="model-chip">
+              <span class="chip-spark">✳</span
+              ><span><b>NEURAL MODEL</b><small>TEACHABLE MACHINE</small></span
+              ><span class="chip-dot" id="chipDot"></span>
+            </div>
+            <button
+              id="analyzeButton"
+              class="analyze-button"
+              type="button"
+              disabled
+            >
+              <span id="buttonText">ÖNCE GÖRSEL SEÇ</span
+              ><span class="button-arrow">↗</span>
+            </button>
+            <div class="privacy-note">
+              <span>✳</span> Yüklenen görsel hiçbir yere gönderilmez.
+            </div>
+          </aside>
+        </div>
+        <p id="errorMessage" class="error-message" role="alert" hidden></p>
+        <div class="loading-line" id="loadingLine" hidden>
+          <span class="loading-spinner"></span
+          ><span id="loadingText">MODEL HAZIRLANIYOR...</span
+          ><span class="loading-track"><i></i></span>
+        </div>
+
+        <section class="result-card" id="resultCard" aria-live="polite" hidden>
+          <div class="result-top">
+            <span class="section-index">03 / DETECTED</span
+            ><span class="result-badge"><i></i> ANALİZ TAMAMLANDI</span>
+          </div>
+          <div class="result-main">
+            <div class="result-symbol" id="resultSymbol">✳</div>
+            <div class="result-copy">
+              <span class="result-kicker">GÖRSELİNDEKİ HAYVAN</span>
+              <h2 id="animalName">—</h2>
+            </div>
+            <div class="confidence">
+              <span>AI GÜVENİ</span><strong id="confidenceValue">0%</strong>
+            </div>
+          </div>
+          <div class="confidence-track"><i id="confidenceBar"></i></div>
+          <div class="result-foot">
+            <span id="resultDescription">Modelin en güçlü tahmini</span
+            ><button id="tryAgain" type="button">YENİ BİR GÖRSEL DENE ↗</button>
+          </div>
+        </section>
+      </section>
+
+      <section class="how" id="how-it-works">
+        <div class="how-title">
+          <span class="section-index">// QUICK START</span>
+          <h2>Üç adımda<br /><span>keşfet.</span></h2>
+        </div>
+        <div class="steps">
+          <article>
+            <span>01</span>
+            <h3>Yükle</h3>
+            <p>Bir oyun ekran görüntüsü ya da hayvan içeren bir görsel seç.</p>
+          </article>
+          <article>
+            <span>02</span>
+            <h3>Tara</h3>
+            <p>
+              Eğittiğimiz model pikselleri tarayıp olası sınıfları
+              karşılaştırır.
+            </p>
+          </article>
+          <article>
+            <span>03</span>
+            <h3>Keşfet</h3>
+            <p>En olası hayvanı ve yapay zekânın güven puanını gör.</p>
+          </article>
+        </div>
+      </section>
+    </main>
+    <footer>
+      <a class="footer-brand" href="/">✳ NEON FAUNA</a
+      ><span>MADE FOR THE CURIOUS <b>·</b> 2025</span
+      ><span>POWERED BY YOUR MODEL</span>
+    </footer>
+    <noscript>Bu uygulama için JavaScript gereklidir.</noscript>
+  </body>
+</html>
